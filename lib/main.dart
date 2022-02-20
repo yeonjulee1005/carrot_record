@@ -1,6 +1,28 @@
-import 'package:carrot_record/splash_screen.dart';
+import 'package:beamer/beamer.dart';
+import 'package:carrot_record/router/locations.dart';
+import 'package:carrot_record/screens/auth_screen.dart';
+import 'package:carrot_record/screens/splash_screen.dart';
 import 'package:carrot_record/utils/logger.dart';
 import 'package:flutter/material.dart';
+
+final _routerDelegate = BeamerDelegate(
+  guards: [
+    BeamGuard(
+        pathBlueprints: [
+          '/',
+        ],
+        check: (context, location) {
+          return false;
+        }, showPage: BeamPage(
+            child: AuthScreen()
+          )
+    )
+  ],
+    locationBuilder: BeamerLocationBuilder(
+      beamLocations: [
+        HomeLocation()
+      ]
+    ));
 
 void main() {
   logger.d('my first log by logger');
@@ -42,8 +64,8 @@ class CarrotApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.amber,
-    );
+    return MaterialApp.router(
+        routeInformationParser: BeamerParser(),
+        routerDelegate: _routerDelegate);
   }
 }
