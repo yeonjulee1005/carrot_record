@@ -29,12 +29,11 @@ class IntroPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text(
                       '당근 마켓',
-                      style: TextStyle(
-                          fontSize: 36, fontWeight: FontWeight.bold),
+                      style: Theme.of(context).textTheme.headline5,
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -55,12 +54,11 @@ class IntroPage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text(
                       '우리 동네 중고 직거래 당근마켓',
-                      style: TextStyle(
-                          fontSize: 26, fontWeight: FontWeight.w600),
+                      style: Theme.of(context).textTheme.headline5,
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -69,7 +67,7 @@ class IntroPage extends StatelessWidget {
                     child: Text(
                       '''당근마켓은 동네 직거래 마켓이에요.
 내 동네를 설정하고 시작해보세요.''',
-                      style: Theme.of(context).textTheme.headline4!
+                      style: Theme.of(context).textTheme.headline6
                       //.copyWith(color: Colors.red),// 테마색 바꾸고 싶을때
                       ,
                       textAlign: TextAlign.center,
