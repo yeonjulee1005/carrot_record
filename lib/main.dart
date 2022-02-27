@@ -1,9 +1,11 @@
 import 'package:beamer/beamer.dart';
 import 'package:carrot_record/router/locations.dart';
-import 'package:carrot_record/screens/auth_screen.dart';
+import 'package:carrot_record/screens/start_screen.dart';
 import 'package:carrot_record/screens/splash_screen.dart';
+import 'package:carrot_record/states/user_provider.dart';
 import 'package:carrot_record/utils/logger.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 final _routerDelegate = BeamerDelegate(
   guards: [
@@ -12,9 +14,9 @@ final _routerDelegate = BeamerDelegate(
           '/',
         ],
         check: (context, location) {
-          return false;
+          return context.watch<UserProvider>().userState;
         }, showPage: BeamPage(
-            child: AuthScreen()
+            child: StartScreen()
           )
     )
   ],
@@ -64,13 +66,41 @@ class CarrotApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      theme: ThemeData(
-        fontFamily: 'Pretendard',
-        primarySwatch: createMaterialColor(const Color(0xFF174378))
-      ),
-        routeInformationParser: BeamerParser(),
-        routerDelegate: _routerDelegate);
+    return ChangeNotifierProvider<UserProvider>(
+      create: (BuildContext context) {
+        return UserProvider();
+        },
+      child: MaterialApp.router(
+        theme: ThemeData(
+          fontFamily: 'Pretendard',
+          primarySwatch: createMaterialColor(const Color(0xFF174378)),
+          hintColor: Colors.grey[350],
+          textTheme: TextTheme(
+            button: TextStyle(color: Colors.white)
+          ),
+          appBarTheme: AppBarTheme(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            titleTextStyle: TextStyle(
+              color: Colors.red,
+              fontSize: 20,
+              fontFamily: 'Pretendard'
+            ),
+            actionsIconTheme: IconThemeData(
+              color: Colors.black87
+            )
+          ),
+          textButtonTheme: TextButtonThemeData(
+            style: TextButton.styleFrom(
+              backgroundColor: Color(0xFF174378),
+              primary: Colors.white,
+              minimumSize: Size(48, 48)
+            )
+          )
+        ),
+          routeInformationParser: BeamerParser(),
+          routerDelegate: _routerDelegate),
+    );
   }
 }
 
