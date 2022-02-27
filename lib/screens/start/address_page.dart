@@ -6,6 +6,8 @@ import 'package:carrot_record/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddressPage extends StatefulWidget {
   AddressPage({Key? key}) : super(key: key);
@@ -20,6 +22,12 @@ class _AddressPageState extends State<AddressPage> {
   AddressModel? _addressModel;
   List<AddressModel2> _addressModel2List = [];
   bool _isGettingLocation = false;
+
+  @override
+  void dispose() {
+    _addressController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +70,6 @@ class _AddressPageState extends State<AddressPage> {
           ),
           TextButton.icon(
             onPressed: () async {
-
               _addressModel = null;
               _addressModel2List.clear();
               setState(() {
@@ -89,11 +96,13 @@ class _AddressPageState extends State<AddressPage> {
                   return;
                 }
               }
-              _locationData = await location.getLocation();
-              logger.d(_locationData, 'here');
-              List<AddressModel2> addresses = await AddressService().findAddressByCoordinate(
-                  log:_locationData.longitude!, lat:_locationData.latitude!);
 
+              _locationData = await location.getLocation();
+              logger.d(_locationData);
+              List<AddressModel2> addresses = await AddressService()
+                  .findAddressByCoordinate(
+                  log: _locationData.longitude!,
+                  lat: _locationData.latitude!);
 
               _addressModel2List.addAll(addresses);
 
@@ -102,8 +111,12 @@ class _AddressPageState extends State<AddressPage> {
               });
             },
             icon: _isGettingLocation?
-            CircularProgressIndicator(
-              color: Colors.white,
+            SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(
+                color: Colors.white,
+              ),
             )
                 :Icon(
               CupertinoIcons.compass,
@@ -123,6 +136,11 @@ class _AddressPageState extends State<AddressPage> {
                   return Container();
                 }
               return ListTile(
+                onTap: (){
+                  _saveAddressAndGoToNextPage(
+                      _addressModel!.result!.items![index].address!.road??""
+                  );
+                },
                 title: Text(
                     _addressModel!.result!.items![index].address!.road??""),
                 subtitle: Text(
@@ -133,23 +151,43 @@ class _AddressPageState extends State<AddressPage> {
           ),
           if(_addressModel2List.isNotEmpty)
             Expanded(
-              child: ListView.builder(₩
-                  padding: EdgeInsets.symmetric(vertical: common_padding),
+              child: ListView.builder(
                   itemBuilder: (context, index) {
                     if (_addressModel2List[index].result==null || _addressModel2List[index].result!.isEmpty) {
                       return Container();
                     }
                     return ListTile(
+                      onTap: (){
+                        _saveAddressAndGoToNextPage(
+                            _addressModel2List[index].result![0].text??"1"
+                        );
+                      },
                       title: Text(
                           _addressModel2List[index].result![0].text??""),
                       subtitle: Text(
                           _addressModel2List[index].result![0].zipcode??""),
                     );
                   },
+                  padding: EdgeInsets.symmetric(vertical: common_padding),
                   itemCount: _addressModel2List.length),
             ),
         ],
       ),
     );
+  }
+
+  _saveAddressAndGoToNextPage(String address) async {
+    _saveAddressOnSharedPreference(address);
+
+    context.read<PageController>().animateToPage(
+      2,
+      duration: Duration(milliseconds: 500),
+      curve: Curves.ease,
+    );
+  }
+
+  _saveAddressOnSharedPreference(String address) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('address', address);
   }
 }
